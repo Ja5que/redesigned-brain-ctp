@@ -3,13 +3,24 @@ from sklearn.model_selection import train_test_split
 import shutil
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p
 
-all_file_path = r'/mnt/e/dataset/Brain/net_data/data_takehalf_Tif'
-all_mask_path = r"/mnt/e/dataset/Brain/net_data/mask_Tif"
+base_path = r'/root/autodl-tmp/net_data'
 
-train_file_path = r"/mnt/e/dataset/Brain/net_data_Tif/train"
-val_file_path = r"/mnt/e/dataset/Brain/net_data_Tif/val"
-train_mask_path = r"/mnt/e/dataset/Brain/net_data_Tif/train_mask"
-val_mask_path = r"/mnt/e/dataset/Brain/net_data_Tif/val_mask"
+all_file_path = os.path.join(base_path, 'data_takehalf_Tif')
+all_mask_path = os.path.join(base_path, 'mask_Tif')
+
+train_file_path = os.path.join(base_path, 'train')
+val_file_path = os.path.join(base_path, 'val')
+train_mask_path = os.path.join(base_path, 'train_mask')
+val_mask_path = os.path.join(base_path, 'val_mask')
+
+
+# all_file_path = r'/mnt/e/dataset/Brain/net_data/data_takehalf_Tif'
+# all_mask_path = r"/mnt/e/dataset/Brain/net_data/mask_Tif"
+
+# train_file_path = r"/mnt/e/dataset/Brain/net_data_Tif/train"
+# val_file_path = r"/mnt/e/dataset/Brain/net_data_Tif/val"
+# train_mask_path = r"/mnt/e/dataset/Brain/net_data_Tif/train_mask"
+# val_mask_path = r"/mnt/e/dataset/Brain/net_data_Tif/val_mask"
 
 
 maybe_mkdir_p(train_file_path)
