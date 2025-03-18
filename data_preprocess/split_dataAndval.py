@@ -2,8 +2,13 @@ import os
 from sklearn.model_selection import train_test_split
 import shutil
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p
+import yaml
 
-base_path = r'/root/autodl-tmp/net_data'
+config = yaml.load(open('config.yaml', 'r'), Loader=yaml.FullLoader)
+base_path = config['base_path']
+base_path = os.path.normpath(base_path)
+Platform_spliter = os.sep
+# print(Platform_spliter)
 
 all_file_path = os.path.join(base_path, 'data_takehalf_Tif')
 all_mask_path = os.path.join(base_path, 'mask_Tif')
@@ -13,14 +18,7 @@ val_file_path = os.path.join(base_path, 'val')
 train_mask_path = os.path.join(base_path, 'train_mask')
 val_mask_path = os.path.join(base_path, 'val_mask')
 
-
-# all_file_path = r'/mnt/e/dataset/Brain/net_data/data_takehalf_Tif'
-# all_mask_path = r"/mnt/e/dataset/Brain/net_data/mask_Tif"
-
-# train_file_path = r"/mnt/e/dataset/Brain/net_data_Tif/train"
-# val_file_path = r"/mnt/e/dataset/Brain/net_data_Tif/val"
-# train_mask_path = r"/mnt/e/dataset/Brain/net_data_Tif/train_mask"
-# val_mask_path = r"/mnt/e/dataset/Brain/net_data_Tif/val_mask"
+print(all_file_path)
 
 
 maybe_mkdir_p(train_file_path)
@@ -48,8 +46,8 @@ for train_p in train_img_paths:
     patient_all_path = [os.path.join(all_file_path, x) for x in patient_all_ct]
     patient_all_m_path = [os.path.join(all_mask_path, x) for x in patient_all_ct]
     for patient_path, patient_m_path in zip(patient_all_path, patient_all_m_path):
-        shutil.copy(patient_path, os.path.join(train_file_path, patient_path.split('/')[-1]))
-        shutil.copy(patient_m_path, os.path.join(train_mask_path, patient_m_path.split('/')[-1]))
+        shutil.copy(patient_path, os.path.join(train_file_path, patient_path.split(Platform_spliter)[-1]))
+        shutil.copy(patient_m_path, os.path.join(train_mask_path, patient_m_path.split(Platform_spliter)[-1]))
 
 print("generate val set")
 for val_p in val_img_paths:
@@ -58,6 +56,6 @@ for val_p in val_img_paths:
     patient_all_path = [os.path.join(all_file_path, x) for x in patient_all_ct]
     patient_all_m_path = [os.path.join(all_mask_path, x) for x in patient_all_ct]
     for patient_path, patient_m_path in zip(patient_all_path, patient_all_m_path):
-        shutil.copy(patient_path, os.path.join(val_file_path, patient_path.split('/')[-1]))
-        shutil.copy(patient_m_path, os.path.join(val_mask_path, patient_m_path.split('/')[-1]))
+        shutil.copy(patient_path, os.path.join(val_file_path, patient_path.split(Platform_spliter)[-1]))
+        shutil.copy(patient_m_path, os.path.join(val_mask_path, patient_m_path.split(Platform_spliter)[-1]))
 
