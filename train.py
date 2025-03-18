@@ -119,6 +119,10 @@ if __name__ == '__main__':
     save_path = os.path.join(res_path, modelName)
     maybe_mkdir_p(save_path)
     device = torch.device(options.gpu)
+    
+    print(res_path)
+    print(save_path)
+    print(device)
     # data info
     train_loader = DataLoader(dataset=Brain_To_Server_Tif(options, mode='train'), batch_size=options.batch_size,
                               num_workers=options.num_workers, shuffle=True, drop_last=True)
