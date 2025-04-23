@@ -1,2 +1,3 @@
 base_path : "D:/net_data_Tif"
 res_path : "D:/BraintoResult"
+to_mat_path : "D:/BraintoResult/tomat"
