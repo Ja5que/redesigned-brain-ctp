@@ -1,3 +1,5 @@
 base_path : "D:/net_data_Tif"
 res_path : "D:/BraintoResult"
 to_mat_path : "D:/BraintoResult/tomat"
+batch_interp_base_path : "D:/net_data_Tif/data_takehalf_Tif"
+batch_interp_save_path : "D:/net_data_Tif/data_interp_Tif"
