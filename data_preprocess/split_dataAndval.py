@@ -10,7 +10,8 @@ base_path = os.path.normpath(base_path)
 Platform_spliter = os.sep
 # print(Platform_spliter)
 
-all_file_path = os.path.join(base_path, 'data_takehalf_Tif')
+# all_file_path = os.path.join(base_path, 'data_takehalf_Tif')
+all_file_path = os.path.join(base_path, 'data_interp_Tif')
 all_mask_path = os.path.join(base_path, 'mask_Tif')
 
 train_file_path = os.path.join(base_path, 'train')

@@ -18,6 +18,7 @@ from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p
 from utils import plot_loss_dice
 import torch.nn.functional as F
 import math
+from model.TTUnet import TTUNet
 train_loss_list = []
 train_SSIM_list = []
 
@@ -130,7 +131,8 @@ if __name__ == '__main__':
                             num_workers=options.num_workers, shuffle=False, drop_last=True)
 
     # model info
-    model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
+    # model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
+    model = TTUNet(chl=15).to(device)
     model.apply(weights_init.init_model)
     loss_mse = torch.nn.MSELoss()
     loss_ssim = SSIM()

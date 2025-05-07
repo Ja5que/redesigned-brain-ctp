@@ -225,66 +225,65 @@ class TransformerBlock(nn.Module):
 
 
 class TTUNet(nn.Module):
-    def __init__(self):
+    def __init__(self,chl=1):
         super(TTUNet,self).__init__()
-        cnum=24
         ##input=batchsize*1*48*256*256
-        self.conv1=convwithactivation(1,cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
-        self.conv1_2=convwithactivation(cnum,cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv1=convwithactivation(1,chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv1_2=convwithactivation(chl,chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
         
-        self.convt1_1=convwithactivation(cnum,cnum,kernel_size=[5,1,1],padding=[2,0,0],stride=[1,1,1])
-        self.convt1_2=convwithactivation(cnum,cnum,kernel_size=[5,1,1],padding=[2,0,0],stride=[1,1,1])
-        self.convt1_3=convwithactivation(cnum,cnum,kernel_size=[5,1,1],padding=[2,0,0],stride=[1,1,1])
+        self.convt1_1=convwithactivation(chl,chl,kernel_size=[5,1,1],padding=[2,0,0],stride=[1,1,1])
+        self.convt1_2=convwithactivation(chl,chl,kernel_size=[5,1,1],padding=[2,0,0],stride=[1,1,1])
+        self.convt1_3=convwithactivation(chl,chl,kernel_size=[5,1,1],padding=[2,0,0],stride=[1,1,1])
         
         ##48*256*256->48*128*128
-        self.conv2=convwithactivation(cnum,2*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,2,2])
-        self.conv3=convwithactivation(2*cnum,2*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
-        self.conv3_2=convwithactivation(2*cnum,2*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv2=convwithactivation(chl,2*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,2,2])
+        self.conv3=convwithactivation(2*chl,2*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv3_2=convwithactivation(2*chl,2*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
         
-        self.embed1=PatchEmbed(in_chans=2*cnum)
-        self.trans1_1=TransformerBlock(dim=8*cnum, input_resolution=[64,64], num_heads=torch.tensor(cnum*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.05,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
-        self.trans1_2=TransformerBlock(dim=8*cnum, input_resolution=[64,64], num_heads=torch.tensor(cnum*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.05,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
-        self.unembed1=PatchUnEmbed(in_chans=8*cnum)
-        self.convt1=convwithactivation(2*cnum,2*cnum,kernel_size=[3,1,1],padding=[1,0,0],stride=[1,1,1])
+        self.embed1=PatchEmbed(in_chans=2*chl)
+        self.trans1_1=TransformerBlock(dim=8*chl, input_resolution=[64,64], num_heads=torch.tensor(chl*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.05,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
+        self.trans1_2=TransformerBlock(dim=8*chl, input_resolution=[64,64], num_heads=torch.tensor(chl*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.05,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
+        self.unembed1=PatchUnEmbed(in_chans=8*chl)
+        self.convt1=convwithactivation(2*chl,2*chl,kernel_size=[3,1,1],padding=[1,0,0],stride=[1,1,1])
         
         ##48*128*128->48*64*64
-        self.conv4=convwithactivation(2*cnum,4*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,2,2])
-        self.conv5=convwithactivation(4*cnum,4*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
-        self.conv5_2=convwithactivation(4*cnum,4*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv4=convwithactivation(2*chl,4*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,2,2])
+        self.conv5=convwithactivation(4*chl,4*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv5_2=convwithactivation(4*chl,4*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
         
-        self.embed2=PatchEmbed(in_chans=4*cnum)
-        self.trans2_1=TransformerBlock(dim=16*cnum, input_resolution=[32,32], num_heads=torch.tensor(cnum*16/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
-        self.trans2_2=TransformerBlock(dim=16*cnum, input_resolution=[32,32], num_heads=torch.tensor(cnum*16/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
-        self.unembed2=PatchUnEmbed(in_chans=16*cnum)
-        self.convt2=convwithactivation(4*cnum,4*cnum,kernel_size=[3,1,1],padding=[1,0,0],stride=[1,1,1])
+        self.embed2=PatchEmbed(in_chans=4*chl)
+        self.trans2_1=TransformerBlock(dim=16*chl, input_resolution=[32,32], num_heads=torch.tensor(chl*16/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
+        self.trans2_2=TransformerBlock(dim=16*chl, input_resolution=[32,32], num_heads=torch.tensor(chl*16/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
+        self.unembed2=PatchUnEmbed(in_chans=16*chl)
+        self.convt2=convwithactivation(4*chl,4*chl,kernel_size=[3,1,1],padding=[1,0,0],stride=[1,1,1])
         
         ##48*64*64->48*32*32
-        self.conv6=convwithactivation(4*cnum,8*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,2,2])
-        self.conv7=convwithactivation(8*cnum,8*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
-        self.conv7_2=convwithactivation(8*cnum,8*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv6=convwithactivation(4*chl,8*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,2,2])
+        self.conv7=convwithactivation(8*chl,8*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv7_2=convwithactivation(8*chl,8*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
         
-        self.embed3=PatchEmbed(in_chans=8*cnum)
-        self.trans3_1=TransformerBlock(dim=32*cnum, input_resolution=[16,16], num_heads=torch.tensor(cnum*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
-        self.trans3_2=TransformerBlock(dim=32*cnum, input_resolution=[16,16], num_heads=torch.tensor(cnum*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
-        self.unembed3=PatchUnEmbed(in_chans=32*cnum)
-        self.convt3=convwithactivation(8*cnum,8*cnum,kernel_size=[3,1,1],padding=[1,0,0],stride=[1,1,1])
+        self.embed3=PatchEmbed(in_chans=8*chl)
+        self.trans3_1=TransformerBlock(dim=32*chl, input_resolution=[16,16], num_heads=torch.tensor(chl*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
+        self.trans3_2=TransformerBlock(dim=32*chl, input_resolution=[16,16], num_heads=torch.tensor(chl*32/16,dtype=int), window_size=1, shift_size=0,mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.1,act_layer=nn.GELU, norm_layer=nn.LayerNorm)
+        self.unembed3=PatchUnEmbed(in_chans=32*chl)
+        self.convt3=convwithactivation(8*chl,8*chl,kernel_size=[3,1,1],padding=[1,0,0],stride=[1,1,1])
         
-        self.conv8=deconvwithactivation(8*cnum,8*cnum,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
+        self.conv8=deconvwithactivation(8*chl,8*chl,kernel_size=[1,3,3],padding=[0,1,1],stride=[1,1,1])
         
         ##48*32*32->48*64*64
-        self.conv9=upconvwithactivation(8*cnum,4*cnum,kernel_size=[1,3,3],stride=1,padding=[0,1,1],scale_factor=[1,2,2])
-        self.conv10=deconvwithactivation(8*cnum,4*cnum,kernel_size=3,padding=1,stride=1)
-        self.conv10_2=deconvwithactivation(4*cnum,4*cnum,kernel_size=3,padding=1,stride=1)
+        self.conv9=upconvwithactivation(8*chl,4*chl,kernel_size=[1,3,3],stride=1,padding=[0,1,1],scale_factor=[1,2,2])
+        self.conv10=deconvwithactivation(8*chl,4*chl,kernel_size=3,padding=1,stride=1)
+        self.conv10_2=deconvwithactivation(4*chl,4*chl,kernel_size=3,padding=1,stride=1)
         ##48*64*64->48*128*128
-        self.conv11=upconvwithactivation(4*cnum,2*cnum,kernel_size=[1,3,3],stride=1,padding=[0,1,1],scale_factor=[1,2,2])
-        self.conv12=deconvwithactivation(4*cnum,2*cnum,kernel_size=3,padding=1,stride=1)
-        self.conv12_2=deconvwithactivation(2*cnum,2*cnum,kernel_size=3,padding=1,stride=1)
+        self.conv11=upconvwithactivation(4*chl,2*chl,kernel_size=[1,3,3],stride=1,padding=[0,1,1],scale_factor=[1,2,2])
+        self.conv12=deconvwithactivation(4*chl,2*chl,kernel_size=3,padding=1,stride=1)
+        self.conv12_2=deconvwithactivation(2*chl,2*chl,kernel_size=3,padding=1,stride=1)
         ##48*128*128->48*256*256
-        self.conv13=upconvwithactivation(2*cnum,1*cnum,kernel_size=[1,3,3],stride=1,padding=[0,1,1],scale_factor=[1,2,2])
+        self.conv13=upconvwithactivation(2*chl,1*chl,kernel_size=[1,3,3],stride=1,padding=[0,1,1],scale_factor=[1,2,2])
         ##output
-        self.conv14=deconvwithactivation(2*cnum,1*cnum,kernel_size=3,padding=1,stride=1)
-        self.conv15=deconvwithactivation(1*cnum,1*cnum,kernel_size=3,padding=1,stride=1)
-        self.conv16=nn.Conv3d(cnum,1,kernel_size=3,padding=1,stride=1)
+        self.conv14=deconvwithactivation(2*chl,1*chl,kernel_size=3,padding=1,stride=1)
+        self.conv15=deconvwithactivation(1*chl,1*chl,kernel_size=3,padding=1,stride=1)
+        self.conv16=nn.Conv3d(chl,1,kernel_size=3,padding=1,stride=1)
         
         
     def forward(self,x):
