@@ -51,7 +51,8 @@ def val(model, val_loader, loss_mse, loss_ssim):
             data, target = data.to(device), target.to(device)
 
             B, D, H, W = data.shape
-            data = data.view(B, 1, D, H, W)
+            # data = data.view(B, 1, D, H, W)
+            data = data.view(B, D, H, W)
             # data_upsample = F.upsample(data, size=(30, 512, 512), mode='trilinear', align_corners=False)
             # for i in range(data.shape[2]):
             #     data_upsample[:, :, 2 * i] = data[:, :, i]
@@ -60,7 +61,7 @@ def val(model, val_loader, loss_mse, loss_ssim):
 
             # output = model(data_upsample)
             output = model(data)
-            output = output.view(B, D, H, W)  # 恢复原始形状
+            # output = output.view(B, D, H, W)  # 恢复原始形状
             loss = loss_mse(output, target)  # 返回平均值
             ssim = loss_ssim(output, target)
 
@@ -88,7 +89,7 @@ def train(model, train_loader, optimizer, loss_mse, loss_ssim, scheduler):
         data, target = data.to(device), target.to(device)
 
         B, D, H, W = data.shape
-        data = data.view(B, 1, D, H, W)
+        data = data.view(B, D, H, W)
         # data_upsample = F.upsample(data, size=(30, 512, 512), mode='trilinear', align_corners=False)
         # for i in range(data.shape[2]):
         #     data_upsample[:, :,2*i] = data[:, :, i]
@@ -98,7 +99,7 @@ def train(model, train_loader, optimizer, loss_mse, loss_ssim, scheduler):
         optimizer.zero_grad()
         # output = model(data_upsample)
         output = model(data)
-        output = output.view(B, D, H, W)  # 恢复原始形状
+        # output = output.view(B, D, H, W)  # 恢复原始形状
         loss = loss_mse(output, target)  # 返回平均值
         ssim = loss_ssim(output, target)
         loss.backward()
@@ -145,8 +146,8 @@ if __name__ == '__main__':
     #     print(f"Data shape: {data.shape}, Target shape: {target.shape}")
     
     # model info
-    # model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
-    model = TTUNet(chl=15).to(device)
+    model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
+    # model = TTUNet(chl=15).to(device)
     model.apply(weights_init.init_model)
     loss_mse = torch.nn.MSELoss()
     loss_ssim = SSIM()

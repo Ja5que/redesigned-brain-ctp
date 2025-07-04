@@ -4,9 +4,12 @@
 # batch_interp_base_path : "D:/net_data_Tif/data_takehalf_Tif"
 # batch_interp_save_path : "D:/net_data_Tif/data_interp_Tif"
 
-base_path: "/mnt/no1/cui/brain_interp_256_data/"
-res_path: "/mnt/no1/cui/result1"
+# base_path: "/mnt/no1/cui/brain_interp_256_data/"
+# res_path: "/mnt/no1/cui/result1"
+base_path: "/mnt/no1/cui/brain_interp_cubic_256_data"
+res_path: "/mnt/no1/cui/result/"
 
+test_res_path: "/mnt/no1/cui/result1/UNetRegis"
 model_test_path: "/mnt/no1/cui/result1/UNetRegis/best_model.pth"
 res_test_path: "/mnt/no1/cui/TestResult"
 test_img_path: "/mnt/no1/cui/brain_interp_256_data/test_img"
