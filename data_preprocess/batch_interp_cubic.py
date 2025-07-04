@@ -4,13 +4,19 @@ import os
 import yaml
 # from scipy.ndimage import zoom
 import torch.nn.functional as F
+import torch
 
-# img is 15*512*512 tiff,need to interp to 30*512*512 tiff,the 15th slice should be the 29th slice
-# also, the img should be interp to 30*256*256 tiff
+# img is 15*512*512 tiff,need to interp to 30*256*256 tiff,the 15th slice should be the 29th slice
 def interp_input_img(img_path, save_path):
     # read tiff
     img = imreadTiff(img_path)
-    img_interp = F.upsample(img, size=(30, 256, 256), mode='trilinear', align_corners=False)
+    img_tensor = torch.from_numpy(img).float().unsqueeze(0).unsqueeze(0)  # add batch and channel dimensions
+    img_interp_256 = F.interpolate(img_tensor, size=(15, 256, 256), mode='trilinear', align_corners=False)
+    img_interp = F.interpolate(img_interp_256, size=(30, 256, 256), mode='trilinear', align_corners=False)
+    for i in range(img.shape[0]):
+        img_interp[:,:,2 * i] = img_interp_256[:, :, i]
+    img_interp = img_interp.squeeze(0).squeeze(0)  # remove batch and channel dimensions
+    img_interp = img_interp.numpy()  # convert to numpy array
     # interp to 30*512*512
     # img_interp = np.zeros((30, 512, 512), dtype=np.float32)
     
@@ -28,7 +34,10 @@ def interp_input_img(img_path, save_path):
 def interp_mask_img(mask_path, save_path):
         # read tiff
     mask = imreadTiff(mask_path)
-    mask_interp = F.upsample(mask, size=(30, 256, 256), mode='trilinear', align_corners=False)
+    mask_tensor = torch.from_numpy(mask).float().unsqueeze(0).unsqueeze(0)  # add batch and channel dimensions
+    mask_interp = F.interpolate(mask_tensor, size=(30, 256, 256), mode='trilinear', align_corners=False)
+    mask_interp = mask_interp.squeeze(0).squeeze(0)  # remove batch and channel dimensions
+    mask_interp = mask_interp.numpy()  # convert to numpy array
     # put mask into mask_interp
     # mask_interp = np.zeros((30, 512, 512), dtype=np.float32)
     # for i in range(30):
@@ -59,16 +68,16 @@ if __name__ == '__main__':
     
     
     # emulate all the tiff files in base_path and interp them to save_path
-    # all_files = os.listdir(base_input_path)
-    # for file in all_files:
-    #     # file_path = os.path.join(base_path, file)
-    #     # save_file_path = os.path.join(save_path, file)
-    #     # interp_img(file_path, save_file_path)
-    #     # print(f'{file} interp done')
-    #     file_path = os.path.join(base_input_path, file)
-    #     save_file_path = os.path.join(save_input_path, file)
-    #     interp_input_img(file_path, save_file_path)
-    #     print(f'{file} interp done(input)')
+    all_files = os.listdir(base_input_path)
+    for file in all_files:
+        # file_path = os.path.join(base_path, file)
+        # save_file_path = os.path.join(save_path, file)
+        # interp_img(file_path, save_file_path)
+        # print(f'{file} interp done')
+        file_path = os.path.join(base_input_path, file)
+        save_file_path = os.path.join(save_input_path, file)
+        interp_input_img(file_path, save_file_path)
+        print(f'{file} interp done(input)')
         
     # emulate all the tiff files in base_mask_path and interp them to save_mask_path
     all_files = os.listdir(base_mask_path)
