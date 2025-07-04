@@ -9,13 +9,22 @@ import pandas as pd
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p
 from crip.io import *
 from tqdm import tqdm
-model_path = r"/mnt/no1/liuguannan/Brain/result/UNetRegis/best_model.pth"
-res_path = os.path.join(options.res_path, model_path.split('/')[-2])
+import yaml
+from model.TTUnet import TTUNet
+# model_path = r"/mnt/no1/liuguannan/Brain/result/UNetRegis/best_model.pth"
+config = yaml.load(open('config.yaml', 'r'), Loader=yaml.FullLoader)
+model_path = config['model_test_path']
+model_path = os.path.normpath(model_path)
+res_path = config['res_test_path']
+maybe_mkdir_p(res_path)
+# res_path = os.path.normpath(res_path)
+# res_path = os.path.join(options.res_path, model_path.split('/')[-2])
 test_imgs = os.listdir(options.val_data_path)
 test_label_path = os.listdir(options.val_label_path)
 device = options.gpu
 
-model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
+# model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
+model = TTUNet(chl=15).to(device)
 ssim = SSIM()
 checkpoint = torch.load(model_path)  # , map_location='cpu'
 model.load_state_dict(checkpoint['net'])
@@ -51,13 +60,16 @@ for (t_name, m_name) in tqdm(zip(test_imgs, test_label_path)):
     with torch.no_grad():
         B, D, H, W = t_tensor.shape
         t_tensor = t_tensor.view(B, 1, D, H, W)
-        t_upsample = F.upsample(t_tensor, size=(30, 512, 512), mode='trilinear', align_corners=False)
-        for i in range(t_tensor.shape[2]):
-            t_upsample[:, :, 2 * i] = t_tensor[:, :, i]
-        t_upsample = t_upsample.squeeze(dim=1)
-        t_predict = model(t_upsample) # B D H W
-        for i in range(t_tensor.shape[2]):
-            t_predict[:, 2 * i] = t_tensor[:, :, i]
+        # t_upsample = F.upsample(t_tensor, size=(30, 512, 512), mode='trilinear', align_corners=False)
+        # for i in range(t_tensor.shape[2]):
+        #     t_upsample[:, :, 2 * i] = t_tensor[:, :, i]
+        # t_upsample = t_upsample.squeeze(dim=1)
+        t_upsample = t_tensor
+        t_predict = model(t_upsample)
+        t_predict = t_predict.view(B, D, H, W)  # restore original
+        # t_predict = model(t_upsample) # B D H W
+        # for i in range(t_tensor.shape[2]):
+            # t_predict[:, 2 * i] = t_tensor[:, :, i]
         score = ssim(t_predict, m_tensor)
         t_predict = np.squeeze(t_predict.data.cpu().numpy().clip(0, 1))
         t_input = np.squeeze(t_upsample.data.cpu().numpy().clip(0, 1))
@@ -65,6 +77,7 @@ for (t_name, m_name) in tqdm(zip(test_imgs, test_label_path)):
 
     t_predict = t_predict * (max_v - min_v) + min_v
     t_input = t_input * (max_v - min_v) + min_v
+    print("t_predict shape: ", t_predict.shape)
     # ct_predcit = sitk.GetImageFromArray(t_predict)
     # ct_predcit.SetOrigin(m_ct.GetOrigin())
     # ct_predcit.SetSpacing(m_ct.GetSpacing())
