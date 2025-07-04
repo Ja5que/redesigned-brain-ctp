@@ -23,8 +23,8 @@ test_imgs = os.listdir(options.val_data_path)
 test_label_path = os.listdir(options.val_label_path)
 device = options.gpu
 
-# model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
-model = TTUNet(chl=15).to(device)
+model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
+# model = TTUNet(chl=15).to(device)
 ssim = SSIM()
 checkpoint = torch.load(model_path)  # , map_location='cpu'
 model.load_state_dict(checkpoint['net'])
@@ -32,6 +32,8 @@ model.load_state_dict(checkpoint['net'])
 log = pd.DataFrame(index=[], columns=['name', 'ssim'])
 input_path = os.path.join(res_path, 'input')
 predict_path = os.path.join(res_path, 'test')
+mark_path = os.path.join(res_path, 'mark')
+maybe_mkdir_p(mark_path)
 maybe_mkdir_p(predict_path)
 maybe_mkdir_p(input_path)
 
@@ -59,7 +61,7 @@ for (t_name, m_name) in tqdm(zip(test_imgs, test_label_path)):
     m_tensor = torch.FloatTensor(m_npy).to(device)
     with torch.no_grad():
         B, D, H, W = t_tensor.shape
-        t_tensor = t_tensor.view(B, 1, D, H, W)
+        t_tensor = t_tensor.view(B, D, H, W)
         # t_upsample = F.upsample(t_tensor, size=(30, 512, 512), mode='trilinear', align_corners=False)
         # for i in range(t_tensor.shape[2]):
         #     t_upsample[:, :, 2 * i] = t_tensor[:, :, i]
@@ -67,9 +69,11 @@ for (t_name, m_name) in tqdm(zip(test_imgs, test_label_path)):
         t_upsample = t_tensor
         t_predict = model(t_upsample)
         t_predict = t_predict.view(B, D, H, W)  # restore original
-        # t_predict = model(t_upsample) # B D H W
-        # for i in range(t_tensor.shape[2]):
-            # t_predict[:, 2 * i] = t_tensor[:, :, i]
+        t_predict = model(t_upsample) # B D H W
+        # print("t_predict shape: ", t_predict.shape)
+        # print("t_tensor shape: ", t_tensor.shape)
+        for i in range(15):
+            t_predict[:, 2 * i] = t_tensor[:, i]
         score = ssim(t_predict, m_tensor)
         t_predict = np.squeeze(t_predict.data.cpu().numpy().clip(0, 1))
         t_input = np.squeeze(t_upsample.data.cpu().numpy().clip(0, 1))
@@ -82,7 +86,10 @@ for (t_name, m_name) in tqdm(zip(test_imgs, test_label_path)):
     # ct_predcit.SetOrigin(m_ct.GetOrigin())
     # ct_predcit.SetSpacing(m_ct.GetSpacing())
     # ct_predcit.SetDirection(m_ct.GetDirection())
+    mark = np.squeeze(m_tensor.data.cpu().numpy().clip(0, 1))
+    mark = mark *(max_v - min_v) + min_v
 
+    imwriteTiff(mark, os.path.join(mark_path, t_name.split('.')[0] + '_mark.tif'))
     # sitk.WriteImage(ct_predcit, os.path.join(predict_path, t_name.split('.')[0] + '_predict.nii.gz'))
     imwriteTiff(t_predict, os.path.join(predict_path, t_name.split('.')[0] + '_predict.tif'))
     imwriteTiff(t_input, os.path.join(input_path, t_name.split('.')[0] + '_input.tif'))
