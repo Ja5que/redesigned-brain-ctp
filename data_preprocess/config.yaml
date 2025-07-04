@@ -2,10 +2,10 @@
 # batch_interp_save_path: "/mnt/no1/cui/brain_interp_256_data/data_takehalf_Tif"
 # batch_interp_base_path: "/mnt/no1/cui/brain_raw_data/mask_Tif"
 # batch_interp_save_path: "/mnt/no1/cui/brain_interp_256_data/mask_Tif"
-base_path: "/mnt/no1/cui/brain_interp_256_data/"
+base_path: "/mnt/no1/cui/brain_interp_cubic_256_data/"
 
 batch_interp_input_base_path : "/mnt/no1/cui/brain_raw_data/data_takehalf_Tif"
-batch_interp_input_save_path : "/mnt/no1/cui/brain_interp_256_data/data_takehalf_Tif"
+batch_interp_input_save_path : "/mnt/no1/cui/brain_interp_cubic_256_data/data_takehalf_Tif"
 
 batch_interp_mask_base_path : "/mnt/no1/cui/brain_raw_data/mask_Tif"
-batch_interp_mask_save_path : "/mnt/no1/cui/brain_interp_256_data/mask_Tif"
+batch_interp_mask_save_path : "/mnt/no1/cui/brain_interp_cubic_256_data/mask_Tif"
