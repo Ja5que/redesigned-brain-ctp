@@ -34,9 +34,9 @@ parser.add_option('--val_label_path', type='str', dest='val_label_path',
 #                   default=r'/mnt/no1/liuguannan/Brain/net_data_Tif/val_mask')
 
 # data_properity
-parser.add_option('-p', '--patch_size', dest='patch_size', default=[512, 512] , type='int',
+parser.add_option('-p', '--patch_size', dest='patch_size', default=[256, 256] , type='int',
                   help='patch size')  # w h d
-parser.add_option('-b', '--batch_size', dest='batch_size', default=4,
+parser.add_option('-b', '--batch_size', dest='batch_size', default=2,
                   type='int', help='batch size')
 parser.add_option('--input_channel', dest='input', default=1,
                   type='int', help='input channel')
@@ -48,7 +48,7 @@ parser.add_option('--pin_memory', dest='pin_memory', default=True, help='pin_mem
 parser.add_option('-w', '--num_workers', dest='num_workers', default=0, type='int',
                   help='multi-preprocess num workers')
 # train
-parser.add_option('-e', '--epochs', dest='epochs', default=150, type='int',
+parser.add_option('-e', '--epochs', dest='epochs', default=300, type='int',
                   help='number of epochs')
 parser.add_option('-l', '--learning-rate', dest='lr', default=0.001,
                   type='float', help='learning rate')

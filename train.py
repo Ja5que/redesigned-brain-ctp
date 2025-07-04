@@ -52,13 +52,15 @@ def val(model, val_loader, loss_mse, loss_ssim):
 
             B, D, H, W = data.shape
             data = data.view(B, 1, D, H, W)
-            data_upsample = F.upsample(data, size=(30, 512, 512), mode='trilinear', align_corners=False)
-            for i in range(data.shape[2]):
-                data_upsample[:, :, 2 * i] = data[:, :, i]
-            data_upsample = data_upsample.squeeze(dim=1)
+            # data_upsample = F.upsample(data, size=(30, 512, 512), mode='trilinear', align_corners=False)
+            # for i in range(data.shape[2]):
+            #     data_upsample[:, :, 2 * i] = data[:, :, i]
+            # data_upsample = data_upsample.squeeze(dim=1)
+            # data_upsample = data.squeeze(dim=1)
 
-
-            output = model(data_upsample)
+            # output = model(data_upsample)
+            output = model(data)
+            output = output.view(B, D, H, W)  # 恢复原始形状
             loss = loss_mse(output, target)  # 返回平均值
             ssim = loss_ssim(output, target)
 
@@ -87,13 +89,16 @@ def train(model, train_loader, optimizer, loss_mse, loss_ssim, scheduler):
 
         B, D, H, W = data.shape
         data = data.view(B, 1, D, H, W)
-        data_upsample = F.upsample(data, size=(30, 512, 512), mode='trilinear', align_corners=False)
-        for i in range(data.shape[2]):
-            data_upsample[:, :,2*i] = data[:, :, i]
-        data_upsample = data_upsample.squeeze(dim=1)
+        # data_upsample = F.upsample(data, size=(30, 512, 512), mode='trilinear', align_corners=False)
+        # for i in range(data.shape[2]):
+        #     data_upsample[:, :,2*i] = data[:, :, i]
+        # data_upsample = data_upsample.squeeze(dim=1)
+        # data_upsample = data.squeeze(dim=1)
 
         optimizer.zero_grad()
-        output = model(data_upsample)
+        # output = model(data_upsample)
+        output = model(data)
+        output = output.view(B, D, H, W)  # 恢复原始形状
         loss = loss_mse(output, target)  # 返回平均值
         ssim = loss_ssim(output, target)
         loss.backward()
@@ -120,6 +125,10 @@ if __name__ == '__main__':
     save_path = os.path.join(res_path, modelName)
     maybe_mkdir_p(save_path)
     device = torch.device(options.gpu)
+    # gpu_memory = [torch.cuda.memory_allocated(i) for i in range(torch.cuda.device_count())]
+    # selected_gpu = gpu_memory.index(min(gpu_memory))  # 选择显存占用最少的GPU
+    # # print(gpu_memory)
+    # device = torch.device(f"cuda:2")
     
     print(res_path)
     print(save_path)
@@ -130,6 +139,11 @@ if __name__ == '__main__':
     val_loader = DataLoader(dataset=Brain_To_Server_Tif(options, mode='val'), batch_size=1,
                             num_workers=options.num_workers, shuffle=False, drop_last=True)
 
+    #check item in the dataset for its shape
+    # for item in train_loader:
+    #     data, target = item['data'], item['label']
+    #     print(f"Data shape: {data.shape}, Target shape: {target.shape}")
+    
     # model info
     # model = UNet2dRegis(in_chl=30, out_chl=30, model_chl=60).to(device)
     model = TTUNet(chl=15).to(device)
