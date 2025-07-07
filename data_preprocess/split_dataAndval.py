@@ -4,31 +4,54 @@ import shutil
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p
 import yaml
 
-config = yaml.load(open('config.yaml', 'r'), Loader=yaml.FullLoader)
-base_path = config['base_path']
-base_path = os.path.normpath(base_path)
 Platform_spliter = os.sep
-# print(Platform_spliter)
+config = yaml.load(open('config.yaml', 'r'), Loader=yaml.FullLoader)
+input_path = config['input_path']
+input_path = os.path.normpath(input_path)
+mask_path = config['mask_path']
+mask_path = os.path.normpath(mask_path)
+traindata_base_path = config['trainsetdata_base_path']
+traindata_base_path = os.path.normpath(traindata_base_path)
+maybe_mkdir_p(traindata_base_path)
 
-all_file_path = os.path.join(base_path, 'data_takehalf_Tif')
-# all_file_path = os.path.join(base_path, 'data_interp_Tif')
-all_mask_path = os.path.join(base_path, 'mask_Tif')
+train_file_path = os.path.join(traindata_base_path, 'train')
+val_file_path = os.path.join(traindata_base_path, 'val')
+train_mask_path = os.path.join(traindata_base_path, 'train_mask')
+val_mask_path = os.path.join(traindata_base_path, 'val_mask')
 
-train_file_path = os.path.join(base_path, 'train')
-val_file_path = os.path.join(base_path, 'val')
-train_mask_path = os.path.join(base_path, 'train_mask')
-val_mask_path = os.path.join(base_path, 'val_mask')
-
-print(all_file_path)
-
-
+train_file_path = os.path.normpath(train_file_path)
+val_file_path = os.path.normpath(val_file_path)
+train_mask_path = os.path.normpath(train_mask_path)
+val_mask_path = os.path.normpath(val_mask_path)
 maybe_mkdir_p(train_file_path)
-maybe_mkdir_p(val_mask_path)
 maybe_mkdir_p(val_file_path)
 maybe_mkdir_p(train_mask_path)
+maybe_mkdir_p(val_mask_path)
+
+# base_path = config['base_path']
+# base_path = os.path.normpath(base_path)
+# Platform_spliter = os.sep
+# # print(Platform_spliter)
+
+# input_path = os.path.join(base_path, 'data_takehalf_Tif')
+# # input_path = os.path.join(base_path, 'data_interp_Tif')
+# mask_path  = os.path.join(base_path, 'mask_Tif')
+
+# train_file_path = os.path.join(base_path, 'train')
+# val_file_path = os.path.join(base_path, 'val')
+# train_mask_path = os.path.join(base_path, 'train_mask')
+# val_mask_path = os.path.join(base_path, 'val_mask')
+
+# print(input_path)
 
 
-data = os.listdir(all_file_path)
+# maybe_mkdir_p(train_file_path)
+# maybe_mkdir_p(val_mask_path)
+# maybe_mkdir_p(val_file_path)
+# maybe_mkdir_p(train_mask_path)
+
+
+data = os.listdir(input_path)
 u_set = set()
 for ct in data:
     patient = ct.split('_')[0]
@@ -44,8 +67,8 @@ print("generate train set")
 for train_p in train_img_paths:
     print("train processing {}".format(train_p))
     patient_all_ct = [x for x in data if x.split('_')[0] == train_p]
-    patient_all_path = [os.path.join(all_file_path, x) for x in patient_all_ct]
-    patient_all_m_path = [os.path.join(all_mask_path, x) for x in patient_all_ct]
+    patient_all_path = [os.path.join(input_path, x) for x in patient_all_ct]
+    patient_all_m_path = [os.path.join(mask_path , x) for x in patient_all_ct]
     for patient_path, patient_m_path in zip(patient_all_path, patient_all_m_path):
         shutil.copy(patient_path, os.path.join(train_file_path, patient_path.split(Platform_spliter)[-1]))
         shutil.copy(patient_m_path, os.path.join(train_mask_path, patient_m_path.split(Platform_spliter)[-1]))
@@ -54,8 +77,8 @@ print("generate val set")
 for val_p in val_img_paths:
     print("val processing {}".format(val_p))
     patient_all_ct = [x for x in data if x.split('_')[0] == val_p]
-    patient_all_path = [os.path.join(all_file_path, x) for x in patient_all_ct]
-    patient_all_m_path = [os.path.join(all_mask_path, x) for x in patient_all_ct]
+    patient_all_path = [os.path.join(input_path, x) for x in patient_all_ct]
+    patient_all_m_path = [os.path.join(mask_path , x) for x in patient_all_ct]
     for patient_path, patient_m_path in zip(patient_all_path, patient_all_m_path):
         shutil.copy(patient_path, os.path.join(val_file_path, patient_path.split(Platform_spliter)[-1]))
         shutil.copy(patient_m_path, os.path.join(val_mask_path, patient_m_path.split(Platform_spliter)[-1]))
